@@ -67,10 +67,6 @@ _aws-sso-profile() {
 _aws-sso-clear() {
   _arguments
 }
-
-# Register completion functions
-compdef _aws-sso-profile aws-sso-profile
-compdef _aws-sso-clear aws-sso-clear
 EOF
     print -u2 -PR "* Detected a new version 'aws-sso'. Regenerated completions."
   fi
