@@ -42,11 +42,10 @@ EOF
 cat <<EOF >| $compfile
 #compdef aws-sso-profile
 
-# Path to your aws-sso binary
-local _aws_sso_bin=$command
-
 # Completion function for aws-sso-profile
 _aws_sso_profile_complete() {
+  # Path to your aws-sso binary
+  local _aws_sso_bin=$command
   local _args
   _args=\${AWS_SSO_HELPER_ARGS:- -L error}
 
@@ -54,7 +53,17 @@ _aws_sso_profile_complete() {
   local -a profiles
   profiles=(\$(\$_aws_sso_bin \${=_args} list --csv Profile 2>/dev/null | tail -n +2))
 
-  _values 'AWS SSO profiles' \$profiles
+  if (( \${#profiles[@]} > 0 )); then
+    # Escape colons in profile names for _values
+    local -a escaped_profiles
+    local profile
+    for profile in \$profiles; do
+      escaped_profiles+=(\${profile//:/\\\\:})
+    done
+    _values 'AWS SSO profiles' \$escaped_profiles
+  else
+    _message 'No AWS SSO profiles found'
+  fi
 }
 
 # aws-sso-profile: complete profiles
@@ -62,12 +71,6 @@ _aws-sso-profile() {
   _arguments \\
     '1:AWS SSO profile:_aws_sso_profile_complete'
 }
-
-if [ "$funcstack[1]" = "_aws-sso-profile" ]; then
-    _aws-sso-profile "$@"
-else
-    compdef _aws-sso-profile aws-sso-profile
-fi
 EOF
     print -u2 -PR "* Detected a new version 'aws-sso'. Regenerated completions."
   fi
