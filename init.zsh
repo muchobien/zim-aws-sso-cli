@@ -19,7 +19,7 @@ aws-sso-profile() {
     return 1
   fi
 
-  eval \$("$command" \${_args} eval -p "\$1")
+  eval \$($command \${=_args} eval -p "\$1")
   if [ "\${AWS_SSO_PROFILE}" != "\$1" ]; then
     return 1
   fi
@@ -31,19 +31,19 @@ aws-sso-clear() {
     echo "AWS_SSO_PROFILE is not set"
     return 1
   fi
-  eval \$("$command" \${_args} eval -c)
+  eval \$($command \${=_args} eval -c)
 }
 EOF
     zcompile -UR $initfile
   fi
 
-  local compfile=$1/functions/_aws-sso
+  local compfile=$1/functions/_aws-sso-profile
   if [[ ! -e $compfile || $compfile -ot $command ]]; then
 cat <<EOF >| $compfile
-#compdef aws-sso-profile aws-sso-clear
+#compdef aws-sso-profile
 
 # Path to your aws-sso binary
-local _aws_sso_bin="$command"
+local _aws_sso_bin=$command
 
 # Completion function for aws-sso-profile
 _aws_sso_profile_complete() {
@@ -54,19 +54,20 @@ _aws_sso_profile_complete() {
   local -a profiles
   profiles=(\$(\$_aws_sso_bin \${=_args} list --csv Profile 2>/dev/null | tail -n +2))
 
-  _describe 'AWS SSO profiles' profiles
+  _values 'AWS SSO profiles' \$profiles
 }
 
 # aws-sso-profile: complete profiles
 _aws-sso-profile() {
   _arguments \\
-    '1:profile:_aws_sso_profile_complete'
+    '1:AWS SSO profile:_aws_sso_profile_complete'
 }
 
-# aws-sso-clear: has no arguments
-_aws-sso-clear() {
-  _arguments
-}
+if [ "$funcstack[1]" = "_aws-sso-profile" ]; then
+    _aws-sso-profile "$@"
+else
+    compdef _aws-sso-profile aws-sso-profile
+fi
 EOF
     print -u2 -PR "* Detected a new version 'aws-sso'. Regenerated completions."
   fi
