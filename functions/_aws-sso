@@ -2,10 +2,16 @@
 # aws-sso completes itself the bash way (`complete -C aws-sso aws-sso`, which needs
 # bashcompinit): run with COMP_LINE and COMP_POINT set, it prints the candidates for
 # the last word. Asked the same way here, natively.
+#
+# Bash splits words on ':', so aws-sso expects it escaped in COMP_LINE and escapes it
+# in what it prints (`Account\:Role`): escaped on the way in, unquoted on the way out,
+# so the profile goes on the command line as `Account:Role`.
 
-local line=${(j: :)words[1,CURRENT]}
+# Quoted with (@), so the empty word being completed (the trailing space) stays.
+local -a escaped=("${(@)${(@)words[1,CURRENT]//\\:/:}//:/\\:}")
+local line=${(j: :)escaped}
 local -a candidates
-candidates=(${(f)"$(COMP_LINE=$line COMP_POINT=${#line} ${_zim_aws_sso:-aws-sso} 2>/dev/null)"})
+candidates=(${(Q)${(f)"$(COMP_LINE=$line COMP_POINT=${#line} ${_zim_aws_sso:-aws-sso} 2>/dev/null)"}})
 if (( $#candidates )); then
   compadd -- $candidates
 else
