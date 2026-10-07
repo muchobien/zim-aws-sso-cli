@@ -1,0 +1,13 @@
+#compdef aws-sso
+# aws-sso completes itself the bash way (`complete -C aws-sso aws-sso`, which needs
+# bashcompinit): run with COMP_LINE and COMP_POINT set, it prints the candidates for
+# the last word. Asked the same way here, natively.
+
+local line=${(j: :)words[1,CURRENT]}
+local -a candidates
+candidates=(${(f)"$(COMP_LINE=$line COMP_POINT=${#line} ${_zim_aws_sso:-aws-sso} 2>/dev/null)"})
+if (( $#candidates )); then
+  compadd -- $candidates
+else
+  _files
+fi
