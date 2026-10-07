@@ -1,0 +1,22 @@
+#compdef aws-sso-profile
+# Profiles one part at a time, split on ':', listed by aws-sso itself; -S/--sso picks
+# the SSO instance they're listed from.
+
+local context state state_descr line
+typeset -A opt_args
+_arguments -s -S \
+  '(-S --sso)'{-S+,--sso=}'[AWS SSO instance]:AWS SSO instance:' \
+  '1:AWS SSO profile:->profile' && return
+
+case $state in
+  profile)
+    local sso=${opt_args[-S]:-${opt_args[--sso]}}
+    local -a args=(${=${AWS_SSO_HELPER_ARGS:--L error}}) profiles
+    profiles=(${(f)"$(${_zim_aws_sso:-aws-sso} $args ${sso:+-S $sso} list --csv Profile 2>/dev/null)"})
+    if (( $#profiles )); then
+      _multi_parts : profiles
+    else
+      _message 'no AWS SSO profiles (run aws-sso login?)'
+    fi
+    ;;
+esac

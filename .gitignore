@@ -1,4 +1,3 @@
 *.zwc
 *.zwc.old
-aws-sso.zsh
 aws-sso-init.zsh
