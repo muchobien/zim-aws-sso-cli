@@ -1,5 +1,12 @@
 # zim-aws-sso-cli
 
+> [!IMPORTANT]
+> Moved to [muchobien/zim-modules](https://github.com/muchobien/zim-modules/tree/main/aws-sso-cli), with its history. This repo is archived. In `~/.zimrc`, replace `zmodule muchobien/zim-aws-sso-cli` with:
+>
+> ```zsh
+> zmodule muchobien/zim-modules --root aws-sso-cli
+> ```
+
 [zim module](https://github.com/zimfw/zimfw) for [aws-sso](https://synfinatic.github.io/aws-sso-cli)
 
 ## Features
